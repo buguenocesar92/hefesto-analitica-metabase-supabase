@@ -1,0 +1,52 @@
+name: ${COMPOSE_PROJECT_NAME:?Run scripts/configure.py}
+x-db-env: &db-env
+  PGHOST: ${POSTGRES_HOST:?Set Supabase host}
+  PGPORT: "5432"
+  PGDATABASE: postgres
+  PGUSER: ${POSTGRES_USERNAME:?Set role login}
+  PGPASSWORD: ${POSTGRES_PASSWORD:?Set role password}
+  PGSSLMODE: verify-full
+  PGSSLROOTCERT: /run/supabase/ca.crt
+services:
+  preflight:
+    image: postgres:17-alpine
+    restart: "no"
+    environment:
+      <<: *db-env
+      SUPABASE_DEDICATED_CONFIRMED: ${SUPABASE_DEDICATED_CONFIRMED:-false}
+      SUPABASE_DATA_API_DISABLED: ${SUPABASE_DATA_API_DISABLED:-false}
+    volumes: [./certs:/run/supabase:ro, ./ops:/opt/hefesto:ro]
+    entrypoint: [/bin/sh, /opt/hefesto/preflight.sh]
+  metabase:
+    image: metabase/metabase:v0.64.1@sha256:fcf3ad4c00f303d96c63233967a24f0d0348bbb725d4704ee1961f9185674e13
+    restart: unless-stopped
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_CONNECTION_URI: jdbc:postgresql://${POSTGRES_HOST:?Set host}:5432/postgres?currentSchema=public&sslmode=verify-full&sslrootcert=/run/supabase/ca.crt
+      MB_DB_USER: ${POSTGRES_USERNAME:?Set role login}
+      MB_DB_PASS: ${POSTGRES_PASSWORD:?Set role password}
+      MB_ENCRYPTION_SECRET_KEY: ${MB_ENCRYPTION_SECRET_KEY:?Generate .env}
+      MB_SITE_URL: https://${BI_HOST:?Set domain}
+      MB_SITE_LOCALE: es
+      MB_REPORT_TIMEZONE: America/Santiago
+      MB_ANON_TRACKING_ENABLED: "false"
+      JAVA_TIMEZONE: America/Santiago
+      JAVA_TOOL_OPTIONS: -Xms256m -Xmx2g
+    volumes: [./certs:/run/supabase:ro]
+    expose: ["3000"]
+    depends_on:
+      preflight: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, curl, -fsS, --max-time, "8", http://127.0.0.1:3000/api/health]
+      interval: 30s
+      timeout: 10s
+      start_period: 180s
+      retries: 10
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+  dbtools:
+    image: postgres:17-alpine
+    profiles: [tools]
+    environment: *db-env
+    volumes: [./certs:/run/supabase:ro]
