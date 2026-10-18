@@ -40,4 +40,6 @@ Variables nuevas para parametrizar la conexión al Postgres compartido:
 
 Variables que Coolify debe poner en `true` y que el preflight verifica antes de levantar Metabase: `SUPABASE_DEDICATED_CONFIRMED`, `SUPABASE_DATA_API_DISABLED`.
 
+`sql/01-supabase-app.sql` fija `DATABASE postgres` en sus líneas 11 y 13. Cuando la base dedicada es `mvp_<slug>`, conéctate al editor SQL de Supabase eligiendo esa base y reemplaza `postgres` por `mvp_<slug>` (o el valor de `DB_NAME`) en ambas líneas antes de ejecutar; los `GRANT CONNECT` y `ALTER ROLE ... IN DATABASE` deben apuntar a la base destino.
+
 El bootstrap inicial (`compose.bootstrap.yaml`) sigue publicando 3000 solo en loopback para crear el administrador de Metabase; tras `docker compose ... down` se levanta solo `compose.yaml` y Coolify enruta el dominio. Ver `docs/COOLIFY.md` para el detalle.
