@@ -68,6 +68,14 @@ if awk '/^volumes:/{flag=1; next} flag && /^[a-zA-Z]/{flag=0} flag' "${COMPOSE_F
     ERRORS+=("volumen: tiene name: literal (${LINE}); Coolify no controla el nombre del volumen")
 fi
 
+# Redes top-level con name: fijo (no Coolify lo controla).
+if awk '/^networks:/{flag=1; next} flag && /^[a-zA-Z]/{flag=0} flag' "${COMPOSE_FILE}" \
+   | grep -nE '^[[:space:]]+name:[[:space:]]*[^$[:space:]#]' > /dev/null 2>&1; then
+    LINE="$(awk '/^networks:/{flag=1; next} flag && /^[a-zA-Z]/{flag=0} flag' "${COMPOSE_FILE}" \
+        | grep -nE '^[[:space:]]+name:' | head -n1)"
+    ERRORS+=("red: tiene name: literal (${LINE}); Coolify no controla el nombre de la red")
+fi
+
 # --- Render JSON: servicios sin profiles (los que aparecen) ---
 
 mapfile -t SERVICES < <(echo "${RENDER_JSON}" | jq -r '.services | keys[]')
