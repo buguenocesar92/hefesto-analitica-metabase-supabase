@@ -25,3 +25,19 @@ Docker descarga la aplicación. El ZIP incluye configuración, SQL, respaldo/rec
 Punto inicial orientativo:2vCPU,4GB RAM para VPS con heap Java2GB; ajustar a consultas/usuarios. Supabase y bases analizadas requieren capacidad propia. Una instancia por cliente si tendrá administración independiente.
 
 Se usa edición OSS. Funciones avanzadas de SSO, permisos por fila/columna o embedding pueden requerir otra edición/licencia; no se prometen aquí. Conservar licencia AGPL y atribuciones aplicables. Hefesto cobra implementación, modelado de indicadores, capacitación y soporte.
+
+## Despliegue en Coolify (MVP Hefesto)
+
+Coolify clona este repositorio en la rama `coolify`, construye con build pack Docker Compose y enruta el dominio HTTPS al servicio `metabase` (puerto interno 3000). El compose ya respeta el contrato: ningún `ports:`, `container_name` ni `privileged`; volúmenes y nombres no se fijan.
+
+Variables nuevas para parametrizar la conexión al Postgres compartido:
+
+| Variable | Default | Uso |
+|----------|---------|-----|
+| `DB_NAME` | `postgres` | Base dentro del Postgres compartido. Coolify usa `mvp_<slug>` por app para mantener el aislamiento. |
+| `DB_SSLMODE` | `verify-full` | Modo SSL del driver. Con `verify-full` la CA en `certs/ca.crt` es obligatoria; con `disable`, `require`, `prefer` o `allow` JDBC ignora `sslrootcert` y `ops/preflight.sh` no exige CA. |
+| `DB_SSLROOTCERT` | `/run/supabase/ca.crt` | Ruta del bundle de CA dentro del contenedor. Si `DB_SSLMODE != verify-full`, puede quedar vacía para omitir `sslrootcert` del DSN. |
+
+Variables que Coolify debe poner en `true` y que el preflight verifica antes de levantar Metabase: `SUPABASE_DEDICATED_CONFIRMED`, `SUPABASE_DATA_API_DISABLED`.
+
+El bootstrap inicial (`compose.bootstrap.yaml`) sigue publicando 3000 solo en loopback para crear el administrador de Metabase; tras `docker compose ... down` se levanta solo `compose.yaml` y Coolify enruta el dominio. Ver `docs/COOLIFY.md` para el detalle.
