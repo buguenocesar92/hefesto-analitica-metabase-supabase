@@ -105,9 +105,9 @@ for svc in "${SERVICES[@]}"; do
     IV="$(echo "${SVC_JSON}" | jq -r '.ipc // ""')"
     [[ "${IV}" == "host" ]] && ERRORS+=("${svc}: usa ipc: host")
 
-    # security_opt unconfined.
+    # security_opt unconfined (seccomp:unconfined, seccomp=unconfined, apparmor:unconfined).
     if echo "${SVC_JSON}" | jq -r '.security_opt // [] | .[]' 2>/dev/null \
-       | grep -qx 'unconfined'; then
+       | grep -qE '(^|[:=])unconfined$'; then
         ERRORS+=("${svc}: usa security_opt unconfined")
     fi
 
