@@ -52,11 +52,12 @@ ERRORS=()
 
 # --- Texto del compose ---
 
-# name raiz: solo permitido si es ${VAR}. Un literal fija el proyecto.
+# name raiz: solo permitido como ${VAR:-default}. Un literal o un
+# ${VAR:?...} fijan el proyecto y bloquean a Coolify.
 if grep -nE '^name:' "${COMPOSE_FILE}" > /dev/null 2>&1 \
-   && ! grep -nE '^name:[[:space:]]*\$\{' "${COMPOSE_FILE}" > /dev/null 2>&1; then
+   && ! grep -nE '^name:[[:space:]]*\$\{[A-Za-z_][A-Za-z0-9_]*:-[^}]*\}' "${COMPOSE_FILE}" > /dev/null 2>&1; then
     LINE="$(grep -nE '^name:' "${COMPOSE_FILE}" | head -n1)"
-    ERRORS+=("raiz: tiene name: literal (${LINE}); Coolify no puede sobrescribir el nombre del proyecto")
+    ERRORS+=("raiz: tiene name: literal o con \${VAR:?...} (${LINE}); Coolify no puede sobrescribir el nombre del proyecto")
 fi
 
 # Volumenes top-level con name: fijo (no Coolify lo controla).

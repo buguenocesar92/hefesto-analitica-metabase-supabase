@@ -1,4 +1,4 @@
-name: ${COMPOSE_PROJECT_NAME:?Run scripts/configure.py}
+name: ${COMPOSE_PROJECT_NAME:-hefesto-analitica}
 x-db-env: &db-env
   PGHOST: ${POSTGRES_HOST:?Set Supabase host}
   PGPORT: "5432"
