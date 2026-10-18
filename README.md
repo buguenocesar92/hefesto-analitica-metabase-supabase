@@ -42,4 +42,10 @@ Variables que Coolify debe poner en `true` y que el preflight verifica antes de 
 
 `sql/01-supabase-app.sql` fija `DATABASE postgres` en sus líneas 11 y 13. Cuando la base dedicada es `mvp_<slug>`, conéctate al editor SQL de Supabase eligiendo esa base y reemplaza `postgres` por `mvp_<slug>` (o el valor de `DB_NAME`) en ambas líneas antes de ejecutar; los `GRANT CONNECT` y `ALTER ROLE ... IN DATABASE` deben apuntar a la base destino.
 
+Antes del primer arranque en Coolify:
+
+- `ops/preflight.sql` aborta si `current_user` no es `metabase_app`. Aunque `POSTGRES_USERNAME` es parametrizable, Coolify debe fijarlo en `metabase_app`; cualquier otro valor deja el preflight en rojo.
+- `ops/preflight.sql` también aborta si el esquema `public` ya tiene tablas de otro dueño. Crea la base `mvp_<slug>` vacía y dedicada (no la reutilices con tablas existentes, ni siquiera de Supabase Auth/Storage).
+- El setup web de Metabase queda público en cuanto Coolify asigna el dominio al servicio. Termina el bootstrap (`compose.bootstrap.yaml`) contra la misma base `mvp_<slug>` y crea el administrador antes de exponer la URL.
+
 El bootstrap inicial (`compose.bootstrap.yaml`) sigue publicando 3000 solo en loopback para crear el administrador de Metabase; tras `docker compose ... down` se levanta solo `compose.yaml` y Coolify enruta el dominio. Ver `docs/COOLIFY.md` para el detalle.
