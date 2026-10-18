@@ -6,7 +6,7 @@ x-db-env: &db-env
   PGUSER: ${POSTGRES_USERNAME:?Set role login}
   PGPASSWORD: ${POSTGRES_PASSWORD:?Set role password}
   PGSSLMODE: ${DB_SSLMODE:-verify-full}
-  PGSSLROOTCERT: ${DB_SSLROOTCERT:-/run/supabase/ca.crt}
+  PGSSLROOTCERT: ${DB_SSLROOTCERT-/run/supabase/ca.crt}
 services:
   preflight:
     image: postgres:17-alpine
@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     environment:
       MB_DB_TYPE: postgres
-      MB_DB_CONNECTION_URI: jdbc:postgresql://${POSTGRES_HOST:?Set host}:5432/${DB_NAME:-postgres}?currentSchema=public&sslmode=${DB_SSLMODE:-verify-full}&sslrootcert=${DB_SSLROOTCERT:-/run/supabase/ca.crt}
+      MB_DB_CONNECTION_URI: jdbc:postgresql://${POSTGRES_HOST:?Set host}:5432/${DB_NAME:-postgres}?currentSchema=public&sslmode=${DB_SSLMODE:-verify-full}&sslrootcert=${DB_SSLROOTCERT-/run/supabase/ca.crt}
       MB_DB_USER: ${POSTGRES_USERNAME:?Set role login}
       MB_DB_PASS: ${POSTGRES_PASSWORD:?Set role password}
       MB_ENCRYPTION_SECRET_KEY: ${MB_ENCRYPTION_SECRET_KEY:?Generate .env}
