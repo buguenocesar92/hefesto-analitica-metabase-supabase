@@ -1,12 +1,12 @@
-name: ${COMPOSE_PROJECT_NAME:?Run scripts/configure.py}
+name: ${COMPOSE_PROJECT_NAME:-hefesto-analitica}
 x-db-env: &db-env
   PGHOST: ${POSTGRES_HOST:?Set Supabase host}
   PGPORT: "5432"
-  PGDATABASE: postgres
+  PGDATABASE: ${DB_NAME:-postgres}
   PGUSER: ${POSTGRES_USERNAME:?Set role login}
   PGPASSWORD: ${POSTGRES_PASSWORD:?Set role password}
-  PGSSLMODE: verify-full
-  PGSSLROOTCERT: /run/supabase/ca.crt
+  PGSSLMODE: ${DB_SSLMODE:-verify-full}
+  PGSSLROOTCERT: ${DB_SSLROOTCERT-/run/supabase/ca.crt}
 services:
   preflight:
     image: postgres:17-alpine
@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     environment:
       MB_DB_TYPE: postgres
-      MB_DB_CONNECTION_URI: jdbc:postgresql://${POSTGRES_HOST:?Set host}:5432/postgres?currentSchema=public&sslmode=verify-full&sslrootcert=/run/supabase/ca.crt
+      MB_DB_CONNECTION_URI: jdbc:postgresql://${POSTGRES_HOST:?Set host}:5432/${DB_NAME:-postgres}?currentSchema=public&sslmode=${DB_SSLMODE:-verify-full}&sslrootcert=${DB_SSLROOTCERT-/run/supabase/ca.crt}
       MB_DB_USER: ${POSTGRES_USERNAME:?Set role login}
       MB_DB_PASS: ${POSTGRES_PASSWORD:?Set role password}
       MB_ENCRYPTION_SECRET_KEY: ${MB_ENCRYPTION_SECRET_KEY:?Generate .env}

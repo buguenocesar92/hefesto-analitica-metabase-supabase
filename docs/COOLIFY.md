@@ -4,7 +4,7 @@ Completar primero bootstrap privado del README. Crear administrador con contrase
 1. Detener bootstrap con `docker compose -f compose.yaml -f compose.bootstrap.yaml down` (no borrar recursos).
 2. Subir archivos versionables a repositorio privado, sin .env/backups.
 3. Crear recurso Compose con compose.yaml; completar variables reales desde .env.
-4. Montar certs/ca.crt en el directorio del recurso. La CA no es una clave privada; puede distribuirse por el repositorio privado si se decide. Mantener ops/ disponible.
+4. Montar certs/ca.crt solo si `DB_SSLMODE=verify-full` (valor por defecto) en el directorio del recurso. La CA no es una clave privada; puede distribuirse por el repositorio privado si se decide. Mantener ops/ disponible.
 5. Asignar https://panel.cliente.cl al servicio metabase, puerto3000. No publicar preflight/dbtools ni override bootstrap.
 6. Desplegar: preflight debe terminar correctamente y /api/health alcanzar estado sano. Confirmar que no reaparece setup y que la URL externa es correcta.
 
