@@ -1,0 +1,57 @@
+{
+  "software": "hefesto-analitica",
+  "version": "0.64.1",
+  "database": "supabase-postgresql",
+  "piezas": [
+    "public.dump"
+  ],
+  "requiere": [
+    "metabase"
+  ],
+  "arranca": [
+    "metabase"
+  ],
+  "pasos": [
+    [
+      "stop",
+      "metabase"
+    ],
+    [
+      "pieza",
+      "public.dump"
+    ]
+  ],
+  "comandos": {
+    "public.dump": [
+      "run",
+      "--rm",
+      "--no-deps",
+      "-T",
+      "--entrypoint",
+      "pg_dump",
+      "dbtools",
+      "--format=custom",
+      "--schema=public",
+      "--no-owner",
+      "--no-acl"
+    ]
+  },
+  "env_requeridas": [
+    "BI_HOST",
+    "POSTGRES_HOST",
+    "POSTGRES_USERNAME",
+    "POSTGRES_PASSWORD",
+    "MB_ENCRYPTION_SECRET_KEY",
+    "DB_HOST",
+    "DB_NAME",
+    "DB_PASSWORD",
+    "DB_SSLMODE"
+  ],
+  "env_secretas": [
+    "POSTGRES_PASSWORD",
+    "DB_PASSWORD",
+    "MB_ENCRYPTION_SECRET_KEY"
+  ],
+  "env_min_len": 32,
+  "env_reglas": []
+}

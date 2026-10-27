@@ -26,7 +26,7 @@ trap 'rm -f "${TMP_ENV}"' EXIT
 
 # Genera .env temporal con valores ficticios. POSTGRES_HOST y BI_HOST
 # reciben un placeholder de host. El resto recibe un token opaco.
-> "${TMP_ENV}"
+printf '' > "${TMP_ENV}"
 for v in "${VARS[@]}"; do
     case "${v}" in
         POSTGRES_HOST|BI_HOST)
